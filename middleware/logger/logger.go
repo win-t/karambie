@@ -13,7 +13,7 @@ type key int
 
 const instance key = 0
 
-func Current(c karambie.ResponseWriterContext) *log.Logger {
+func Current(c *karambie.ResponseWriterContext) *log.Logger {
 	if v, ok := c.GetOk(instance); ok {
 		if v, ok := v.(*log.Logger); ok {
 			return v
