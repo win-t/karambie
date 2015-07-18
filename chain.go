@@ -5,9 +5,16 @@ import (
 )
 
 type Chain interface {
-	Next()
+	Next() bool
 	Stop()
-	Resume()
+	Resume() bool
+}
+
+func (c *context) prepare(h handlerList, r *http.Request) {
+	c.hl = h
+	c.req = r
+	c.index = 0
+	c.stoped = false
 }
 
 func (c *context) run() {
@@ -20,23 +27,22 @@ func (c *context) run() {
 	}
 }
 
-func (c *context) prepare(h handlerList, r *http.Request) {
-	c.hl = h
-	c.req = r
-	c.index = 0
-	c.stoped = false
-
-}
-
-func (c *context) Next() {
-	c.index += 1
-	c.run()
+func (c *context) Next() bool {
+	if !c.stoped {
+		c.index += 1
+		c.run()
+	}
+	return !c.stoped
 }
 
 func (c *context) Stop() {
 	c.stoped = true
 }
 
-func (c *context) Resume() {
-	c.stoped = false
+func (c *context) Resume() bool {
+	if c.stoped {
+		c.stoped = false
+		c.run()
+	}
+	return !c.stoped
 }

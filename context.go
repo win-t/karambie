@@ -4,8 +4,11 @@ import (
 	"net/http"
 )
 
+const maxInt int = int(^uint(0) >> 1)
+
 type ResponseWriterContext interface {
 	http.ResponseWriter
+	Original() http.ResponseWriter
 
 	Status() int
 	Written() int
@@ -34,7 +37,7 @@ type context struct {
 func Context(rw http.ResponseWriter) (ret ResponseWriterContext) {
 	ret, ok := rw.(ResponseWriterContext)
 	if !ok {
-		ret = &context{rw, 0, 0, make(map[interface{}]interface{}), nil, nil, 0, false}
+		ret = &context{rw, 0, 0, make(map[interface{}]interface{}), nil, nil, maxInt, true}
 	}
 	return
 }
@@ -58,6 +61,10 @@ func (c *context) WriteHeader(s int) {
 	}
 	c.rw.WriteHeader(s)
 	c.status = s
+}
+
+func (c *context) Original() http.ResponseWriter {
+	return c.rw
 }
 
 func (c *context) Status() int {
