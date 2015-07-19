@@ -1,14 +1,12 @@
 package static
 
 import (
+	"log"
 	"net/http"
 	"net/url"
 	"path"
 	"path/filepath"
 	"strings"
-
-	"github.com/win-t/karambie"
-	"github.com/win-t/karambie/middleware/logger"
 )
 
 // StaticOptions is a struct for specifying configuration options for the martini.Static middleware.
@@ -52,7 +50,7 @@ func prepareStaticOptions(options []StaticOptions) StaticOptions {
 }
 
 // Static returns a middleware handler that serves static files in the given directory.
-func Get(directory string, staticOpt ...StaticOptions) http.Handler {
+func New(directory string, log *log.Logger, staticOpt ...StaticOptions) http.Handler {
 	if !filepath.IsAbs(directory) {
 		panic(directory + " must be absolute path")
 	}
@@ -60,9 +58,6 @@ func Get(directory string, staticOpt ...StaticOptions) http.Handler {
 	opt := prepareStaticOptions(staticOpt)
 
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		c := karambie.Context(res)
-		log := logger.Current(c)
-
 		if req.Method != "GET" && req.Method != "HEAD" {
 			return
 		}

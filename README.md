@@ -1,3 +1,3 @@
-Simple webtoolkit inspired by luvit-weblit, go-martini, and gorilla
+Simple webtoolkit inspired by luvit-weblit, martini/negroni, and gorilla
 
 TODO: update this README.md

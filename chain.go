@@ -13,19 +13,18 @@ func (c *ResponseWriterContext) prepare(h HandlerList, r *http.Request) {
 
 func (c *ResponseWriterContext) run() {
 	for !c.stoped && c.index < len(c.hl) {
-		c.hl[c.index].ServeHTTP(c, c.req)
+		h := c.hl[c.index]
 		c.index += 1
-		if c.written > 0 {
+
+		h.ServeHTTP(c, c.req)
+		if c.status > 0 {
 			c.stoped = true
 		}
 	}
 }
 
 func (c *ResponseWriterContext) Next() bool {
-	if !c.stoped {
-		c.index += 1
-		c.run()
-	}
+	c.run()
 	return !c.stoped
 }
 

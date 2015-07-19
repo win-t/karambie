@@ -1,33 +1,19 @@
 package logger
 
 import (
+	"io"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/win-t/karambie"
 )
 
-type key int
-
-const instance key = 0
-
-func Current(c *karambie.ResponseWriterContext) *log.Logger {
-	if v, ok := c.GetOk(instance); ok {
-		if v, ok := v.(*log.Logger); ok {
-			return v
-		}
-	}
-	return nil
-}
-
 // Logger returns a middleware handler that logs the request as it goes in and the response as it goes out.
-func Get() http.Handler {
-	log := log.New(os.Stdout, "[Karambie] ", 0)
+func New(writer io.Writer, tag string) (http.Handler, *log.Logger) {
+	log := log.New(writer, "["+tag+"] ", 0)
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		c := karambie.Context(res)
-		c.Set(instance, log)
 
 		start := time.Now()
 
@@ -39,10 +25,12 @@ func Get() http.Handler {
 			}
 		}
 
-		log.Printf("Started %s %s for %s", req.Method, req.URL.Path, addr)
-
 		c.Next()
 
-		log.Printf("Completed %v %s in %v\n", c.Status(), http.StatusText(c.Status()), time.Since(start))
-	})
+		log.Printf(
+			"%s %s for %s -> %v %s (written %d bytes) in %v\n",
+			req.Method, req.URL.Path, addr,
+			c.Status(), http.StatusText(c.Status()), c.Written(), time.Since(start),
+		)
+	}), log
 }

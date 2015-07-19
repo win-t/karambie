@@ -4,16 +4,17 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"runtime"
+	"strconv"
 
 	"github.com/win-t/karambie"
-	"github.com/win-t/karambie/middleware/logger"
 )
 
 const (
 	panicHtml = `<html>
-<head><title>PANIC: %s</title>
+<head><title>PANIC</title>
 <style type="text/css">
 html, body {
 	font-family: "Roboto", sans-serif;
@@ -112,10 +113,9 @@ func function(pc uintptr) []byte {
 
 // Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.
 // While Martini is in development mode, Recovery will also output the panic as HTML.
-func Get(verbose bool) http.Handler {
+func New(verbose bool, log *log.Logger) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		c := karambie.Context(res)
-		log := logger.Current(c)
 
 		defer func() {
 			if err := recover(); err != nil {
@@ -128,9 +128,13 @@ func Get(verbose bool) http.Handler {
 				var body []byte
 				if verbose {
 					res.Header().Set("Content-Type", "text/html")
-					body = []byte(fmt.Sprintf(panicHtml, err, err, stack))
+					body = []byte(fmt.Sprintf(panicHtml, err, stack))
 				} else {
-					body = []byte("500 Internal Server Error")
+					body = []byte(fmt.Sprintf(
+						panicHtml,
+						"HTTP "+strconv.Itoa(http.StatusInternalServerError),
+						http.StatusText(http.StatusInternalServerError),
+					))
 				}
 
 				res.WriteHeader(http.StatusInternalServerError)
