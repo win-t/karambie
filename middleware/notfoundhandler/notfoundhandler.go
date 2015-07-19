@@ -39,21 +39,21 @@ pre {
 </html>`
 )
 
-func New(h http.Handler) http.Handler {
+func New(redirect bool, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		c := karambie.Context(rw)
 		if c.Status() == 0 {
-			if strings.HasSuffix(r.URL.Path, "/") {
+			if redirect && !strings.HasSuffix(r.URL.Path, "/") {
+				u, _ := url.Parse(r.URL.String())
+				u.Path += "/"
+				http.Redirect(rw, r, u.String(), http.StatusTemporaryRedirect)
+			} else {
 				c.WriteHeader(http.StatusNotFound)
 				if h == nil {
 					c.Write([]byte(fmt.Sprintf(template, r.URL)))
 				} else {
 					h.ServeHTTP(c, r)
 				}
-			} else {
-				u, _ := url.Parse(r.URL.String())
-				u.Path += "/"
-				http.Redirect(rw, r, u.String(), http.StatusTemporaryRedirect)
 			}
 		}
 	})

@@ -119,7 +119,7 @@ func New(verbose bool, log *log.Logger) http.Handler {
 
 		defer func() {
 			if err := recover(); err != nil {
-				stack := stack(4)
+				stack := stack(3)
 				if log != nil {
 					log.Printf("PANIC: %s\n%s", err, stack)
 				}

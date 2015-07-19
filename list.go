@@ -6,7 +6,7 @@ import (
 
 type HandlerList []http.Handler
 
-func convFuncToHandler(h []http.HandlerFunc) []http.Handler {
+func ConvList(h []http.HandlerFunc) []http.Handler {
 	hs := make([]http.Handler, 0, len(h))
 	for _, v := range h {
 		hs = append(hs, v)
@@ -20,7 +20,7 @@ func List(h ...http.Handler) HandlerList {
 }
 
 func ListFunc(h ...http.HandlerFunc) HandlerList {
-	return List(convFuncToHandler(h)...)
+	return List(ConvList(h)...)
 }
 
 func (l HandlerList) Add(h ...http.Handler) HandlerList {
@@ -36,7 +36,7 @@ func (l HandlerList) Add(h ...http.Handler) HandlerList {
 }
 
 func (l HandlerList) AddFunc(h ...http.HandlerFunc) HandlerList {
-	return l.Add(convFuncToHandler(h)...)
+	return l.Add(ConvList(h)...)
 }
 
 func (h HandlerList) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
