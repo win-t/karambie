@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/win-t/karambie"
@@ -11,12 +12,12 @@ import (
 	"github.com/win-t/karambie/middleware/static"
 )
 
-func Common(staticDir string) (karambie.HandlerList, *log.Logger) {
+func Common(verboseError bool, notFound http.Handler, staticDir string) (karambie.HandlerList, *log.Logger) {
 	logger, l := logger.New(os.Stdout, "Karambie")
 	ret := karambie.List(
 		logger,
-		recovery.New(true, l),
-		karambie.Later(notfoundhandler.New(nil)),
+		recovery.New(verboseError, l),
+		karambie.Later(notfoundhandler.New(notFound)),
 	)
 	if len(staticDir) > 0 {
 		ret = ret.Add(karambie.Later(static.New(staticDir, l)))
