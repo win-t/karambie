@@ -45,7 +45,7 @@ func (h HandlerList) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	c.run()
 }
 
-func Pending(h http.Handler) http.Handler {
+func Later(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		c := Context(rw)
 		if c.Next() {
@@ -54,6 +54,6 @@ func Pending(h http.Handler) http.Handler {
 	})
 }
 
-func PendingFunc(h http.HandlerFunc) http.HandlerFunc {
-	return Pending(h).ServeHTTP
+func LaterFunc(h http.HandlerFunc) http.HandlerFunc {
+	return Later(h).ServeHTTP
 }

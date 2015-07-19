@@ -16,10 +16,10 @@ func Common(staticDir string) (karambie.HandlerList, *log.Logger) {
 	ret := karambie.List(
 		logger,
 		recovery.New(true, l),
-		karambie.Pending(notfoundhandler.New(nil)),
+		karambie.Later(notfoundhandler.New(nil)),
 	)
 	if len(staticDir) > 0 {
-		ret = ret.Add(karambie.Pending(static.New(staticDir, l)))
+		ret = ret.Add(karambie.Later(static.New(staticDir, l)))
 	}
 	return ret, l
 }
