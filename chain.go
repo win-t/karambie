@@ -17,7 +17,7 @@ func (c *ResponseWriterContext) run() {
 		c.index += 1
 
 		h.ServeHTTP(c, c.req)
-		if c.status > 0 {
+		if c.status != 0 {
 			c.stoped = true
 		}
 	}

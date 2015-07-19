@@ -17,7 +17,7 @@ func Common(verboseError bool, notFound http.Handler, staticDir string) (karambi
 	ret := karambie.List(
 		logger,
 		recovery.New(verboseError, l),
-		karambie.Later(notfoundhandler.New(notFound)),
+		karambie.Later(notfoundhandler.New(true, notFound)),
 	)
 	if len(staticDir) > 0 {
 		ret = ret.Add(karambie.Later(static.New(staticDir, l)))
