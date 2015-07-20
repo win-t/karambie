@@ -61,7 +61,7 @@ func (this *MartiniHelper) context(rwc *karambie.ResponseWriterContext, r *http.
 
 		c.Map(rwc)
 		c.MapTo(c, (*martini.Context)(nil))
-		c.MapTo(rwc, (*http.ResponseWriter)(nil))
+		c.MapTo(martini.NewResponseWriter(rwc), (*http.ResponseWriter)(nil))
 		c.Map(r)
 
 		rwc.Set(contextInstance, c)
