@@ -37,11 +37,13 @@ func (this *MartiniHelper) Conv(h martini.Handler) http.Handler {
 			panic(err)
 		}
 
-		// if the handler returned something, write it to the http response
-		if len(vals) > 0 {
-			ev := c.Get(reflect.TypeOf(martini.ReturnHandler(nil)))
-			handleReturn := ev.Interface().(martini.ReturnHandler)
-			handleReturn(c, vals)
+		if rwc.Status() == 0 {
+			// if the handler returned something, write it to the http response
+			if len(vals) > 0 {
+				ev := c.Get(reflect.TypeOf(martini.ReturnHandler(nil)))
+				handleReturn := ev.Interface().(martini.ReturnHandler)
+				handleReturn(c, vals)
+			}
 		}
 	})
 }
