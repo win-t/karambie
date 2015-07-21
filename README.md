@@ -9,6 +9,8 @@ NOTE: it's better if you understand how to use martini and gorilla
 
 see example
 
+see documentation in [godoc.com](http://godoc.org/github.com/win-t/karambie)
+
 ## Martini compability
 
 You can use martini middleware in [martini-contrib](https://github.com/martini-contrib)
