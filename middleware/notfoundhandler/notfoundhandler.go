@@ -39,6 +39,8 @@ pre {
 </html>`
 )
 
+// if redirect is true, it will try to add trailing slash to the url.
+// if h is nil, default handler will be use
 func New(redirect bool, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		c := karambie.Context(rw)

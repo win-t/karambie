@@ -70,7 +70,7 @@ func main() {
 	// list is [logger, recovery, notfoundhandler, static]
 	// but the order of execution is [logger, recovery, static, notfoundhandler]
 	// karambie.Later will create new handler that will be executed after succeeding handler
-	// list processing will stop if one of them respond the request
+	// list processing will stop if one of them respond the request (http response status != 0)
 
 	secureList := list.Add(martini.Conv(auth.Basic("user", "pass"))) // execution of secureList is [logger, recovery, auth, static, notfoundhandler]
 	list = list.Add(martini.Conv(render.Renderer()))                 // execution of list is       [logger, recovery, render, static, notfoundhandler]

@@ -12,6 +12,7 @@ import (
 	"github.com/win-t/karambie/middleware/static"
 )
 
+// get common HandlerList, it contain [logger, recovery, notfoundhandler, static]
 func Common(verboseError bool, notFound http.Handler, staticDir string) (karambie.HandlerList, *log.Logger) {
 	logger, l := logger.New(os.Stdout, "Karambie")
 	ret := karambie.List(

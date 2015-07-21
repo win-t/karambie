@@ -10,6 +10,7 @@ import (
 )
 
 // Logger returns a middleware handler that logs the request as it goes in and the response as it goes out.
+// return http.Handler and log.Logger instance
 func New(writer io.Writer, tag string) (http.Handler, *log.Logger) {
 	log := log.New(writer, "["+tag+"] ", 0)
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {

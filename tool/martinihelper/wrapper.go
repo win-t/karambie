@@ -19,6 +19,7 @@ type MartiniHelper struct {
 	inject.Injector
 }
 
+// create new helper, this object will be used for globar service for martini middleware
 func New() *MartiniHelper {
 	this := &MartiniHelper{inject.New()}
 	retHandler := martini.New().Get(reflect.TypeOf(martini.ReturnHandler(nil))).Interface()
@@ -27,6 +28,7 @@ func New() *MartiniHelper {
 	return this
 }
 
+// convert martini middleware into http.Handler
 func (this *MartiniHelper) Conv(h martini.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		rwc := karambie.Context(rw)
