@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"log"
-	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/win-t/karambie"
 	"github.com/win-t/karambie/middleware/logger"
@@ -13,15 +13,17 @@ import (
 )
 
 // get common HandlerList, it contain [logger, recovery, notfoundhandler, static]
-func Common(verboseError bool, notFound http.Handler, staticDir string) (karambie.HandlerList, *log.Logger) {
-	logger, l := logger.New(os.Stdout, "Karambie")
-	ret := karambie.List(
-		logger,
-		recovery.New(verboseError, l),
-		karambie.Later(notfoundhandler.New(true, notFound)),
+func Common() (karambie.HandlerList, *log.Logger) {
+	log := log.New(os.Stdout, "[Karambie] ", 0)
+	cwd, _ := os.Getwd()
+
+	list := karambie.List(
+		logger.New(log),
+		recovery.New(nil, log),
+		karambie.Later(notfoundhandler.New(true, nil)),
 	)
-	if len(staticDir) > 0 {
-		ret = ret.Add(karambie.Later(static.New(staticDir, l)))
+	if len(staticDir) > 0 && len(cwd) > 0 {
+		list = list.Add(karambie.Later(static.New(filepath.Join(cwd, staticDir), log)))
 	}
-	return ret, l
+	return list, log
 }

@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"io"
 	"log"
 	"net/http"
 	"time"
@@ -11,8 +10,7 @@ import (
 
 // Logger returns a middleware handler that logs the request as it goes in and the response as it goes out.
 // return http.Handler and log.Logger instance
-func New(writer io.Writer, tag string) (http.Handler, *log.Logger) {
-	log := log.New(writer, "["+tag+"] ", 0)
+func New(log *log.Logger) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		c := karambie.Context(res)
 
@@ -33,5 +31,5 @@ func New(writer io.Writer, tag string) (http.Handler, *log.Logger) {
 			req.Method, req.URL.Path, addr,
 			c.Status(), http.StatusText(c.Status()), c.Written(), time.Since(start),
 		)
-	}), log
+	})
 }

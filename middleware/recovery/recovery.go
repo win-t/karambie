@@ -7,10 +7,19 @@ import (
 	"log"
 	"net/http"
 	"runtime"
-	"strconv"
 
 	"github.com/win-t/karambie"
 )
+
+type key int
+
+const (
+	stackInstance key = iota
+)
+
+func GetStack(c *karambie.ResponseWriterContext) []byte {
+	return c.Get(stackInstance).([]byte)
+}
 
 const (
 	panicHtml = `<html>
@@ -113,33 +122,23 @@ func function(pc uintptr) []byte {
 
 // Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.
 // While Martini is in development mode, Recovery will also output the panic as HTML.
-func New(verbose bool, log *log.Logger) http.Handler {
+func New(h http.Handler, log *log.Logger) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		c := karambie.Context(res)
 
 		defer func() {
 			if err := recover(); err != nil {
 				stack := stack(3)
+				c.Set(stackInstance, stack)
+
 				if log != nil {
 					log.Printf("PANIC: %s\n%s", err, stack)
 				}
 
-				// respond with panic message while in development mode
-				var body []byte
-				if verbose {
+				if h == nil {
 					res.Header().Set("Content-Type", "text/html")
-					body = []byte(fmt.Sprintf(panicHtml, err, stack))
-				} else {
-					body = []byte(fmt.Sprintf(
-						panicHtml,
-						"HTTP "+strconv.Itoa(http.StatusInternalServerError),
-						http.StatusText(http.StatusInternalServerError),
-					))
-				}
-
-				res.WriteHeader(http.StatusInternalServerError)
-				if nil != body {
-					res.Write(body)
+					res.WriteHeader(http.StatusInternalServerError)
+					res.Write([]byte(fmt.Sprintf(panicHtml, err, stack)))
 				}
 			}
 		}()
