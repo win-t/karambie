@@ -2,29 +2,33 @@ package karambie
 
 import (
 	"net/http"
+	"sync"
 )
-
-const maxInt int = int(^uint(0) >> 1)
 
 // Context is created and destroyed for each request/response
 type ResponseWriterContext struct {
-	rw      http.ResponseWriter
+	rw http.ResponseWriter
+
 	status  int
 	written int
 
 	data map[interface{}]interface{}
+	sync sync.RWMutex
 
-	hl     HandlerList
-	req    *http.Request
-	index  int
-	stoped bool
+	hl      HandlerList
+	req     *http.Request
+	index   int
+	running bool
 }
 
 // create new context of http.ResponseWriter, or just return the input if it's already have context
 func Context(rw http.ResponseWriter) (ret *ResponseWriterContext) {
 	ret, ok := rw.(*ResponseWriterContext)
 	if !ok {
-		ret = &ResponseWriterContext{rw, 0, 0, make(map[interface{}]interface{}), nil, nil, maxInt, true}
+		ret = &ResponseWriterContext{
+			rw:   rw,
+			data: make(map[interface{}]interface{}),
+		}
 	}
 	return
 }
@@ -70,11 +74,17 @@ func (c *ResponseWriterContext) Written() int {
 
 // set data in context, identified with key
 func (c *ResponseWriterContext) Set(key, value interface{}) {
+	c.sync.Lock()
+	defer c.sync.Unlock()
+
 	c.data[key] = value
 }
 
 // get data in context, identified with key, will return (nil, false) if data doesn't exist
 func (c *ResponseWriterContext) GetOk(key interface{}) (ret interface{}, ok bool) {
+	c.sync.RLock()
+	defer c.sync.RUnlock()
+
 	ret, ok = c.data[key]
 	return
 }
@@ -87,5 +97,8 @@ func (c *ResponseWriterContext) Get(key interface{}) (ret interface{}) {
 
 // delete data in context, identified with key
 func (c *ResponseWriterContext) Delete(key interface{}) {
+	c.sync.Lock()
+	defer c.sync.Unlock()
+
 	delete(c.data, key)
 }
