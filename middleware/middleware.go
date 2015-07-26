@@ -21,9 +21,7 @@ func Common() (karambie.HandlerList, *log.Logger) {
 		logger.New(log),
 		recovery.New(nil, log),
 		karambie.Later(notfoundhandler.New(true, nil)),
+		karambie.Later(static.New(filepath.Join(cwd, "public"), log)),
 	)
-	if len(staticDir) > 0 && len(cwd) > 0 {
-		list = list.Add(karambie.Later(static.New(filepath.Join(cwd, staticDir), log)))
-	}
 	return list, log
 }
