@@ -14,7 +14,8 @@ import (
 
 // get common HandlerList, it contain [logger, recovery, notfoundhandler, static]
 func Common() (karambie.HandlerList, *log.Logger) {
-	log := log.New(os.Stdout, "[Karambie] ", 0)
+	tag := filepath.Base(os.Args[0])
+	log := log.New(os.Stdout, "["+tag+"] ", 0)
 	cwd, _ := os.Getwd()
 
 	list := karambie.List(
