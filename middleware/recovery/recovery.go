@@ -15,10 +15,11 @@ type key int
 
 const (
 	stackInstance key = iota
+	errInstance
 )
 
-func GetStack(c *karambie.ResponseWriterContext) []byte {
-	return c.Get(stackInstance).([]byte)
+func GetStack(c *karambie.ResponseWriterContext) (interface{}, []byte) {
+	return c.Get(errInstance), c.Get(stackInstance).([]byte)
 }
 
 const (
@@ -129,6 +130,7 @@ func New(h http.Handler, log *log.Logger) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				stack := stack(3)
+				c.Set(errInstance, err)
 				c.Set(stackInstance, stack)
 
 				if log != nil {
@@ -139,6 +141,8 @@ func New(h http.Handler, log *log.Logger) http.Handler {
 					res.Header().Set("Content-Type", "text/html")
 					res.WriteHeader(http.StatusInternalServerError)
 					res.Write([]byte(fmt.Sprintf(panicHtml, err, stack)))
+				} else {
+					h.ServeHTTP(res, req)
 				}
 			}
 		}()

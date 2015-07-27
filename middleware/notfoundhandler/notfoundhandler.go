@@ -50,8 +50,9 @@ func New(redirect bool, h http.Handler) http.Handler {
 				u.Path += "/"
 				http.Redirect(rw, r, u.String(), http.StatusTemporaryRedirect)
 			} else {
-				c.WriteHeader(http.StatusNotFound)
 				if h == nil {
+					c.Header().Set("Content-Type", "text/html")
+					c.WriteHeader(http.StatusNotFound)
 					c.Write([]byte(fmt.Sprintf(template, r.URL)))
 				} else {
 					h.ServeHTTP(c, r)
