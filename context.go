@@ -41,7 +41,8 @@ func (c *ResponseWriterContext) Header() http.Header {
 // see http.ResponseWriter
 func (c *ResponseWriterContext) Write(b []byte) (int, error) {
 	if c.status == 0 {
-		c.WriteHeader(http.StatusOK)
+		// c.rw.Write(b) will set status to http.StatusOK
+		c.status = http.StatusOK
 	}
 	size, err := c.rw.Write(b)
 	c.written += size
