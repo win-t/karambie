@@ -129,20 +129,27 @@ func New(h http.Handler, log *log.Logger) http.Handler {
 
 		defer func() {
 			if err := recover(); err != nil {
-				stack := stack(3)
-				c.Set(errInstance, err)
-				c.Set(stackInstance, stack)
 
-				if log != nil {
-					log.Printf("PANIC: %s\n%s", err, stack)
-				}
-
-				if h == nil {
-					res.Header().Set("Content-Type", "text/html")
-					res.WriteHeader(http.StatusInternalServerError)
-					res.Write([]byte(fmt.Sprintf(panicHtml, err, stack)))
+				// something has been written as response
+				if c.Status() != 0 {
+					// unrecoverable, re-panic
+					panic(err)
 				} else {
-					h.ServeHTTP(res, req)
+					stack := stack(3)
+					c.Set(errInstance, err)
+					c.Set(stackInstance, stack)
+
+					if log != nil {
+						log.Printf("PANIC: %s\n%s", err, stack)
+					}
+
+					if h == nil {
+						res.Header().Set("Content-Type", "text/html")
+						res.WriteHeader(http.StatusInternalServerError)
+						res.Write([]byte(fmt.Sprintf(panicHtml, err, stack)))
+					} else {
+						h.ServeHTTP(res, req)
+					}
 				}
 			}
 		}()

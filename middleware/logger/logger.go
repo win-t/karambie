@@ -24,6 +24,13 @@ func New(log *log.Logger) http.Handler {
 			}
 		}
 
+		defer func() {
+			if err := recover(); err != nil {
+				log.Printf("PANIC %s", err)
+				panic(err)
+			}
+		}()
+
 		c.Next()
 
 		log.Printf(
