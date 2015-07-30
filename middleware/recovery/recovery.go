@@ -123,7 +123,7 @@ func function(pc uintptr) []byte {
 
 // Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.
 // While Martini is in development mode, Recovery will also output the panic as HTML.
-func New(h http.Handler, log *log.Logger) http.Handler {
+func New(log *log.Logger, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		c := karambie.Context(res)
 
