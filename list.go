@@ -45,6 +45,12 @@ func (l HandlerList) AddFunc(h ...http.HandlerFunc) HandlerList {
 	return l.Add(ConvList(h)...)
 }
 
+func (l HandlerList) AsFunc() func(http.HandlerFunc) HandlerList {
+	return func(h http.HandlerFunc) HandlerList {
+		return l.Add(h)
+	}
+}
+
 // see http.Hadler
 func (h HandlerList) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	c := Context(rw)
