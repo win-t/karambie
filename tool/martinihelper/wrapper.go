@@ -71,14 +71,14 @@ func (this *MartiniHelper) context(rwc *karambie.ResponseWriterContext, r *http.
 	}
 }
 
-func (c *context) rwc() *karambie.ResponseWriterContext {
-	return c.Get(reflect.TypeOf((*karambie.ResponseWriterContext)(nil))).Interface().(*karambie.ResponseWriterContext)
-}
-
 func (c *context) Next() {
-	c.rwc().Next()
+	c.Get(
+		reflect.TypeOf((*karambie.ResponseWriterContext)(nil)),
+	).Interface().(*karambie.ResponseWriterContext).Next()
 }
 
 func (c *context) Written() bool {
-	return c.rwc().Status() != 0
+	return c.Get(
+		reflect.TypeOf((*karambie.ResponseWriterContext)(nil)),
+	).Interface().(*karambie.ResponseWriterContext).Status() != 0
 }

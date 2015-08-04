@@ -45,6 +45,7 @@ func (l HandlerList) AddFunc(h ...http.HandlerFunc) HandlerList {
 	return l.Add(ConvList(h)...)
 }
 
+// return HandlerList builder as function
 func (l HandlerList) AsFunc() func(http.HandlerFunc) HandlerList {
 	return func(h http.HandlerFunc) HandlerList {
 		return l.Add(h)
