@@ -3,6 +3,7 @@ package recovery
 import (
 	"bytes"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -121,8 +122,15 @@ func function(pc uintptr) []byte {
 	return name
 }
 
+func logPrintf(l *log.Logger, format string, v ...interface{}) {
+	if l == nil {
+		log.Printf(format, v...)
+	} else {
+		l.Printf(format, v...)
+	}
+}
+
 // Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.
-// While Martini is in development mode, Recovery will also output the panic as HTML.
 func New(log *log.Logger, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		c := karambie.Context(res)
@@ -130,8 +138,8 @@ func New(log *log.Logger, h http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 
-				// something has been written as response
 				if c.Status() != 0 {
+					// something has been written as response
 					// unrecoverable, re-panic
 					panic(err)
 				} else {
@@ -139,14 +147,14 @@ func New(log *log.Logger, h http.Handler) http.Handler {
 					c.Set(errInstance, err)
 					c.Set(stackInstance, stack)
 
-					if log != nil {
-						log.Printf("PANIC: %s\n%s", err, stack)
-					}
+					logPrintf(log, "PANIC: %s\n%s", err, stack)
 
 					if h == nil {
 						res.Header().Set("Content-Type", "text/html")
 						res.WriteHeader(http.StatusInternalServerError)
-						res.Write([]byte(fmt.Sprintf(panicHtml, err, stack)))
+						res.Write([]byte(fmt.Sprintf(
+							panicHtml, err,
+							template.HTMLEscapeString(string(stack)))))
 					} else {
 						h.ServeHTTP(res, req)
 					}

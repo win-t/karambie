@@ -56,7 +56,7 @@ func main() {
 
 	log := log.New(os.Stdout, "[Karambie] ", 0)
 
-	logger := logger.New(log)                                      // log every request
+	logger := logger.New(log, false)                               // log every request
 	recovery := recovery.New(log, nil)                             // recover if panic
 	notfoundhandler := notfoundhandler.New(true, nil)              // show 404, add trailing slash to url if necessary
 	static := static.New(filepath.Join(currentDir, "public"), log) // serve static file in folder "public"

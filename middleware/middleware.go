@@ -19,7 +19,7 @@ func Common() (karambie.HandlerList, *log.Logger) {
 	cwd, _ := os.Getwd()
 
 	list := karambie.List(
-		logger.New(log),
+		logger.New(log, false),
 		recovery.New(log, nil),
 		karambie.Later(notfoundhandler.New(true, nil)),
 		karambie.Later(static.New(filepath.Join(cwd, "public"), log)),
